@@ -6,7 +6,20 @@ from time import sleep
 screenWidth = 400
 screenHeight = 700
 
-fallingSpeed = 3
+# pygame setup
+pygame.init()
+screen = pygame.display.set_mode((screenWidth, screenHeight))
+clock = pygame.time.Clock()
+running = True
+deltaTime = 0
+
+backgroundImage = pygame.image.load(os.path.join("images", "background.jpg"))
+backgroundImage = pygame.transform.scale(backgroundImage, (screenWidth, screenHeight))
+
+
+
+
+
 
 playerMaxJumpHight = screenHeight / 2
 player = {
@@ -15,23 +28,33 @@ player = {
     "width": 50,
     "height": 50
 }
+playerSprite = pygame.image.load(os.path.join("images", "player.png"))
+playerSprite = pygame.transform.scale(playerSprite, (player["width"], player["height"]))
 
 platforms = []
 platformCount = 10
 platformWidth = 50
 platformHeight = 10
+platformSprite = pygame.image.load(os.path.join("images", "platform.png"))
+platformSprite = pygame.transform.scale(platformSprite, (platformWidth, platformHeight))
 
 for platform in range(platformCount):
     platforms.append({"x": randint(0, screenWidth-platformWidth), "y": randint(0, screenHeight-platformHeight)})
 
-jumpHeight = 30
-jumpSpeed = 5 #immer gleich außer wenn es eine feder oder so hittet
+fallingSpeed = 1
+jumpHeight = 250
+jumpSpeed = 1 #immer gleich außer wenn es eine feder oder so hittet
 remainingJumpingHeight = 0
 
-while True:
+while running:
+    # poll for events
+    # pygame.QUIT event means the user clicked X to close your window
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
 
-    if remainingJumpingHeight == 0:
+    if remainingJumpingHeight <= 0:
         
         #nach unten fallen lassen
         player["y"] += fallingSpeed #eig noch delta time
@@ -61,46 +84,24 @@ while True:
             for platform in platforms:
                 platform["y"] += jumpSpeed
                 remainingJumpingHeight -= jumpSpeed
+                print(remainingJumpingHeight)
 
 
-    print(player)
+
+    #update sprites
+    screen.blit(backgroundImage, (0, 0))
+    screen.blit(playerSprite, (player["x"], player["y"]))
     for platform in platforms:
-        print(platform)
-    sleep(5)
+        screen.blit(platformSprite, (platform["x"], platform["y"]))
+    pygame.display.update()
 
 
+    # print(player)
+    # for platform in platforms:
+    #     print(platform)
+    # sleep(5)
+    deltaTime = clock.tick(60) / 1000
 
 
-# pygame setup
-# pygame.init()
-# screen = pygame.display.set_mode((400, 700))
-# clock = pygame.time.Clock()
-# running = True
-# deltaTime = 0
-
-# backgroundImage = pygame.image.load(os.path.join("Python\DoodleJump", "background.jpg"))
-# backgroundImage = pygame.transform.scale(backgroundImage, (400, 700))
-
-# screen.blit(backgroundImage, (0, 0))
-# pygame.display.update()
-
-
-
-# while running:
-#     # poll for events
-#     # pygame.QUIT event means the user clicked X to close your window
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-
-
-
-
+pygame.quit()
     
-#     # limits FPS to 60
-#     # delta time in seconds since last frame, used for framerate-
-#     # independent physics.
-#     deltaTime = clock.tick(60) / 1000
-    
-
-# pygame.quit()
