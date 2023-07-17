@@ -8,18 +8,19 @@ screenHeight = 700
 
 # pygame setup
 pygame.init()
+pygame.display.set_caption("TopJump")
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 clock = pygame.time.Clock()
 running = True
 
-backgroundImage = pygame.image.load(os.path.join("images", "background.jpg"))
+backgroundImage = pygame.image.load(os.path.join("images", "mikal.png"))
 backgroundImage = pygame.transform.scale(backgroundImage, (screenWidth, screenHeight))
 
 playerMaxJumpHight = screenHeight / 2
 player = {
     "x": screenWidth/2,
     "y": screenHeight/2,
-    "width": 50,
+    "width": screenWidth,
     "height": 50
 }
 playerMaxSpeed = 6
@@ -63,15 +64,12 @@ for platform in range(platformCount):
     x, y = newPlatform(True)
     platforms.append({"x": x, "y": y, "type": 0}) #0 ist normal
 
-
-
+score = 0
+font = pygame.font.Font("freesansbold.ttf", 22)
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
 
     #player movement
     keys = pygame.key.get_pressed()
@@ -103,14 +101,16 @@ while running:
 
     #update sprites
     screen.blit(backgroundImage, (0, 0))
+    screen.blit(font.render("Score: "+str(score), True, (0, 0, 0)), (20, 20))
     for platform in platforms:
         if platform["type"] == 0:
             screen.blit(platformSprite, (platform["x"], platform["y"]))
+
         elif platform["type"] == 1: 
             screen.blit(movingPlatformSprite, (platform["x"], platform["y"]))
+
         elif platform["type"] == 2:
             screen.blit(breakingPlatformSprite, (platform["x"], platform["y"]))
-
 
     screen.blit(playerSprite, (player["x"], player["y"]))
     pygame.display.update()
@@ -119,7 +119,7 @@ while running:
     if remainingJumpingHeight <= 0:
 
         if playerSpeed < playerMaxSpeed:
-            playerSpeed += playerMaxSpeed * 0.05
+            playerSpeed += playerMaxSpeed * 0.05 #wieder beschleunigung
 
         if player["y"]+player["height"] > screenHeight:
             print("dead")
@@ -140,11 +140,9 @@ while running:
                         playerSpeed = playerMaxSpeed
                         nextIsJump = True
 
-
                 elif player["y"]+player["height"]+playerSpeed > platform["y"] and player["y"]+player["height"] < platform["y"]:
                     player["y"] = platform["y"]-player["height"]
                     nextIsJump = True
-                    # sleep(1)
                 
         if not nextIsJump:
             player["y"] += playerSpeed
@@ -161,19 +159,15 @@ while running:
         elif remainingJumpingHeight <= 80:
             playerSpeed = playerMaxSpeed * 0.8
 
-
         #doodle an die max jump höhe machen,
         if player["y"] > playerMaxJumpHight:
-            # print("doodle höher")
-            player["y"] -= playerSpeed #noch komplexer eig weil er sonst an verschiedenen stellen sein kann, noch checken ob - jumpSpeed 3 rest lässt oder so
+            player["y"] -= playerSpeed
             remainingJumpingHeight -= playerSpeed
 
         #welt hinter doodle verschieben
         else:
-            # print("welt nach unten")
             for platform in platforms:
                 platform["y"] += playerSpeed
-
                 if platform["y"] > screenHeight:
 
                     abc = random()
@@ -186,8 +180,8 @@ while running:
 
                     platform["x"], platform["y"] = newPlatform()
 
-            # print(remainingJumpingHeight)
             remainingJumpingHeight -= playerSpeed
+            score += int(playerSpeed)
 
     clock.tick(60) / 1000
 
